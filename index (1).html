@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق إدارة المنتجات</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Almarai and Lateef -->
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Lateef&display=swap" rel="stylesheet">
+    <!-- SheetJS CDN for reading Excel files -->
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Almarai', sans-serif; /* Primary font */
+            background-color: #e0f2f7; /* Light Cyan */
+            direction: rtl; /* Ensure RTL direction for the entire body */
+        }
+        h1, h2, button {
+            font-family: 'Lateef', 'Almarai', sans-serif; /* Decorative font for headings and buttons */
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f8ff; /* AliceBlue */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #81d4fa; /* Light Blue 300 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4fc3f7; /* Light Blue 400 */
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <!-- Main Container -->
+    <div class="bg-white shadow-2xl rounded-3xl p-4 sm:p-6 md:p-8 lg:p-12 w-full max-w-5xl flex flex-col gap-6 md:gap-10 border border-blue-100">
+
+        <!-- Header with Logo and Admin Login Button -->
+        <header class="flex flex-col items-center md:flex-row md:justify-between mb-4 md:mb-6 gap-4 md:gap-6">
+            <div class="flex items-center gap-3 md:gap-4">
+                <!-- Logo -->
+                <img src="https://up6.cc/2025/08/175425156080341.png" alt="شعار الشركة" class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full shadow-lg border-2 border-yellow-400 object-cover">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-800 drop-shadow-md">نظام إدارة المنتجات مقاول بلس</h1>
+            </div>
+            <!-- Admin Login Button (initially visible) -->
+            <button id="showAdminLoginButton"
+                    class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-xl whitespace-nowrap">
+                تسجيل دخول الأدمن
+            </button>
+        </header>
+
+        <!-- Elegant Banner -->
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl text-center mb-4 md:mb-8">
+            <p class="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 drop-shadow-lg">مرحباً بك في نظام إدارة المنتجات!</p>
+            <p class="text-lg sm:text-xl md:text-2xl font-light opacity-90">ابحث عن منتجاتك أو قم بإدارة المخزون بكل سهولة.</p>
+        </div>
+
+        <!-- User Interface Section -->
+        <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-8 rounded-2xl shadow-lg border border-blue-200">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">البحث عن المنتجات</h2>
+            <div class="flex flex-col md:flex-row items-center gap-3 sm:gap-4 md:gap-5 mb-4 md:mb-8">
+                <input type="text" id="productIdInput" placeholder="أدخل رقم المنتج للبحث..."
+                       class="flex-grow p-3 sm:p-4 border border-blue-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-400 focus:border-transparent text-lg sm:text-xl text-right placeholder-gray-500 transition duration-300 ease-in-out">
+                <button id="searchButton"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-lg sm:text-xl w-full md:w-auto">
+                    بحث المنتج
+                </button>
+            </div>
+
+            <!-- Product Display Area -->
+            <div id="productDetails" class="bg-white p-4 sm:p-6 rounded-xl shadow-inner border border-gray-200 min-h-[150px] sm:min-h-[200px] flex flex-col items-center justify-center text-gray-700 text-center transition-all duration-300 ease-in-out">
+                <p class="text-lg sm:text-xl md:text-2xl font-medium text-gray-600">ابدأ بالبحث عن منتجك المفضل!</p>
+            </div>
+        </div>
+
+        <!-- Admin Login Section (initially hidden, shown when showAdminLoginButton is clicked) -->
+        <div id="adminLoginSection" class="bg-gradient-to-br from-green-100 to-emerald-200 p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg border border-green-200 hidden">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">تسجيل دخول الأدمن</h2>
+            <div class="flex flex-col md:flex-row items-center gap-3 sm:gap-4 md:gap-5 mb-4 md:mb-6">
+                <input type="password" id="adminPasswordInput" placeholder="أدخل كلمة سر الأدمن"
+                       class="flex-grow p-3 sm:p-4 border border-green-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-400 focus:border-transparent text-lg sm:text-xl text-right placeholder-gray-500 transition duration-300 ease-in-out">
+                <button id="adminLoginButton"
+                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-lg sm:text-xl w-full md:w-auto">
+                    دخول
+                </button>
+            </div>
+            <p id="adminLoginMessage" class="text-red-600 text-center text-base mt-4 font-semibold"></p>
+        </div>
+
+        <!-- Admin Upload Section (Hidden by default) -->
+        <div id="adminUploadSection" class="bg-gradient-to-br from-green-100 to-emerald-200 p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg border border-green-200 hidden">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">رفع ملف بيانات المنتجات (Excel)</h2>
+            <div class="flex flex-col md:flex-row items-center gap-3 sm:gap-4 md:gap-5 mb-4 md:mb-6">
+                <input type="file" id="excelFileInput" accept=".xlsx"
+                       class="flex-grow p-3 sm:p-4 border border-green-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-400 file:mr-3 sm:file:mr-5 file:py-2 sm:file:py-3 file:px-4 sm:file:px-6 file:rounded-lg file:border-0 file:text-base sm:file:text-lg file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer transition duration-300 ease-in-out">
+                <button id="uploadButton"
+                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-lg sm:text-xl w-full md:w-auto">
+                    رفع الملف الآن
+                </button>
+            </div>
+            <p id="uploadStatus" class="text-center text-base mt-4 font-semibold"></p>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDKs (Updated to v12.0.0) -->
+    <!-- Moved script to end of body to ensure DOM elements are loaded -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, setDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+        // Global Firebase variables
+        let app;
+        let db;
+        let auth;
+        let userId = null; // Will store the authenticated user ID
+
+        // Initialize Firebase with your provided configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAebCAE22u0CRcpEBvXkSV7Gt2-PW-c0VU",
+            authDomain: "sample-firebase-ai-app-96f8f.firebaseapp.com",
+            projectId: "sample-firebase-ai-app-96f8f",
+            storageBucket: "sample-firebase-ai-app-96f8f.firebasestorage.app",
+            messagingSenderId: "1070037465230",
+            appId: "1:1070037465230:web:353248568baba1e04b31df"
+        };
+        app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+
+        // Authenticate anonymously or with custom token
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                console.log("Firebase authenticated. User ID:", userId);
+            } else {
+                // Sign in anonymously if no user is authenticated
+                try {
+                    let signedIn = false;
+                    // Use the __initial_auth_token if available for Canvas environment
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        try {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                            signedIn = true;
+                        } catch (customTokenError) {
+                            console.warn("Custom token sign-in failed, falling back to anonymous:", customTokenError);
+                            // Continue to anonymous sign-in if custom token fails
+                        }
+                    }
+
+                    if (!signedIn) { // If custom token didn't work or wasn't present
+                        await signInAnonymously(auth);
+                    }
+                    userId = auth.currentUser?.uid || crypto.randomUUID(); // Fallback for userId
+                    console.log("Firebase authenticated. User ID:", userId);
+                } catch (error) {
+                    console.error("Error during Firebase authentication fallback:", error);
+                }
+            }
+            // Once authenticated, load existing products from Firestore
+            loadProductsFromFirestore();
+        });
+
+        // Global Map to store product data (product_id -> {product_name, price, image_url})
+        // خريطة عالمية لتخزين بيانات المنتجات (رقم المنتج -> {اسم المنتج، السعر، رابط الصورة})
+        // هذه الخريطة ستُملأ من Firestore عند التحميل الأولي ومن رفع الأدمن
+        let productData = new Map();
+
+        // Admin password (for demonstration purposes, this is client-side and not secure for production)
+        // كلمة سر الأدمن (لأغراض العرض فقط، هذه الكلمة سر موجودة في جانب العميل وليست آمنة للإنتاج)
+        const ADMIN_PASSWORD = "admin";
+
+        // Declare DOM elements globally but assign them inside DOMContentLoaded
+        let productIdInput;
+        let searchButton;
+        let productDetails;
+        let adminPasswordInput;
+        let adminLoginButton;
+        let adminLoginMessage;
+        let adminLoginSection;
+        let adminUploadSection;
+        let excelFileInput;
+        let uploadButton;
+        let uploadStatus;
+        let showAdminLoginButton; // New element for showing admin login
+
+        // Function to display messages in a styled way (instead of alert)
+        // دالة لعرض الرسائل بطريقة منسقة (بدلاً من استخدام alert)
+        function showMessage(element, message, type = 'info') {
+            if (!element) return; // Ensure element exists before trying to update
+            element.textContent = message;
+            element.className = 'text-center text-base mt-4 font-semibold'; // Reset classes for new design
+            if (type === 'error') {
+                element.classList.add('text-red-600');
+            } else if (type === 'success') {
+                element.classList.add('text-green-600');
+            } else if (type === 'loading') {
+                element.classList.add('text-blue-600');
+            }
+            else {
+                element.classList.add('text-gray-600');
+            }
+        }
+
+        // Collection path for public product data
+        // مسار المجموعة لبيانات المنتج العامة
+        // __app_id is provided by the Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const PRODUCTS_COLLECTION_PATH = `artifacts/${appId}/public/data/products`;
+
+        // Function to load products from Firestore
+        // دالة لتحميل المنتجات من Firestore
+        async function loadProductsFromFirestore() {
+            if (!db || !userId) {
+                console.warn("Firestore not initialized or user not authenticated yet.");
+                return;
+            }
+            showMessage(productDetails, 'جاري تحميل المنتجات...', 'loading');
+            try {
+                const productsRef = collection(db, PRODUCTS_COLLECTION_PATH);
+                const q = query(productsRef);
+                const querySnapshot = await getDocs(q);
+
+                productData.clear(); // Clear local data before loading from Firestore
+                querySnapshot.forEach((doc) => {
+                    const product = doc.data();
+                    // Store product_name along with price and image_url
+                    productData.set(product.product_id, {
+                        product_name: product.product_name, // Added product_name
+                        price: product.price,
+                        image_url: product.image_url
+                    });
+                });
+                showMessage(productDetails, 'الرجاء إدخال رقم المنتج والضغط على "بحث".', 'info');
+                console.log(`تم تحميل ${productData.size} منتجًا من Firestore.`);
+            } catch (error) {
+                console.error("خطأ في تحميل المنتجات من Firestore:", error);
+                showMessage(productDetails, `حدث خطأ في تحميل المنتجات: ${error.message}`, 'error');
+            }
+        }
+
+        // --- DOMContentLoaded Listener ---
+        // يتم تشغيل هذا الكود بعد تحميل جميع عناصر HTML
+        document.addEventListener('DOMContentLoaded', () => {
+            // Assign DOM elements here
+            productIdInput = document.getElementById('productIdInput');
+            searchButton = document.getElementById('searchButton');
+            productDetails = document.getElementById('productDetails');
+            adminPasswordInput = document.getElementById('adminPasswordInput');
+            adminLoginButton = document.getElementById('adminLoginButton');
+            adminLoginMessage = document.getElementById('adminLoginMessage');
+            adminLoginSection = document.getElementById('adminLoginSection');
+            adminUploadSection = document.getElementById('adminUploadSection');
+            excelFileInput = document.getElementById('excelFileInput');
+            uploadButton = document.getElementById('uploadButton');
+            uploadStatus = document.getElementById('uploadStatus');
+            showAdminLoginButton = document.getElementById('showAdminLoginButton'); // Get the new button
+
+            // --- Event Listener for showing Admin Login ---
+            showAdminLoginButton.addEventListener('click', () => {
+                adminLoginSection.classList.remove('hidden'); // Show the admin login section
+                showAdminLoginButton.classList.add('hidden'); // Hide the "تسجيل دخول الأدمن" button
+            });
+
+
+            // --- User Interface Logic ---
+            // منطق واجهة المستخدم
+
+            searchButton.addEventListener('click', () => {
+                const productId = productIdInput.value.trim();
+                if (!productId) {
+                    productDetails.innerHTML = `<p class="text-red-600 text-2xl font-medium">الرجاء إدخال رقم المنتج للبحث.</p>`;
+                    return;
+                }
+
+                const product = productData.get(productId);
+
+                if (product) {
+                    productDetails.innerHTML = `
+                        <p class="text-3xl font-bold text-gray-800 mb-3">اسم المنتج: <span class="text-blue-700">${product.product_name || 'غير متوفر'}</span></p>
+                        <p class="text-3xl font-bold text-gray-800 mb-3">السعر: <span class="text-blue-700">${product.price}</span></p>
+                        <img src="${product.image_url}" alt="صورة المنتج ${productId}" class="max-w-xs max-h-56 rounded-xl shadow-md mt-6 border border-gray-300 object-contain"
+                             onerror="this.onerror=null;this.src='https://placehold.co/250x200/e0e0e0/000000?text=لا+توجد+صورة';">
+                    `;
+                } else {
+                    productDetails.innerHTML = `<p class="text-red-600 text-2xl font-medium">المنتج رقم "${productId}" غير موجود.</p>`;
+                }
+            });
+
+            // Allow searching by pressing Enter key in the input field
+            // السماح بالبحث بالضغط على مفتاح Enter في حقل الإدخال
+            productIdInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    searchButton.click();
+                }
+            });
+
+            // --- Admin Interface Logic ---
+            // منطق واجهة الأدمن
+
+            adminLoginButton.addEventListener('click', () => {
+                const password = adminPasswordInput.value;
+                if (password === ADMIN_PASSWORD) {
+                    adminLoginSection.classList.add('hidden');
+                    adminUploadSection.classList.remove('hidden');
+                    showMessage(adminLoginMessage, 'تم تسجيل الدخول بنجاح! يمكنك الآن رفع ملف Excel.', 'success');
+                } else {
+                    showMessage(adminLoginMessage, 'كلمة السر غير صحيحة. حاول مرة أخرى.', 'error');
+                    adminPasswordInput.value = ''; // Clear password field
+                }
+            });
+
+            // Allow admin login by pressing Enter key in the password field
+            // السماح بتسجيل دخول الأدمن بالضغط على مفتاح Enter في حقل كلمة السر
+            adminPasswordInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    adminLoginButton.click();
+                }
+            });
+
+            uploadButton.addEventListener('click', async () => {
+                const file = excelFileInput.files[0];
+                if (!file) {
+                    showMessage(uploadStatus, 'الرجاء اختيار ملف Excel لرفعه.', 'error');
+                    return;
+                }
+
+                if (!db || !userId) {
+                    showMessage(uploadStatus, 'خطأ: لم يتم تهيئة قاعدة البيانات أو لم يتم تسجيل الدخول.', 'error');
+                    return;
+                }
+
+                showMessage(uploadStatus, 'جاري معالجة ورفع الملف، الرجاء الانتظار...', 'loading');
+
+                const reader = new FileReader();
+
+                reader.onload = async (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+
+                        // Assuming the first sheet contains the product data
+                        // نفترض أن الورقة الأولى تحتوي على بيانات المنتج
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+
+                        // Convert sheet to JSON array
+                        // تحويل الورقة إلى مصفوفة JSON
+                        const jsonProducts = XLSX.utils.sheet_to_json(worksheet);
+
+                        // Clear existing data in Firestore before uploading new data
+                        // مسح البيانات الموجودة في Firestore قبل رفع البيانات الجديدة
+                        const productsRef = collection(db, PRODUCTS_COLLECTION_PATH);
+                        const existingDocs = await getDocs(productsRef);
+                        const deleteBatch = writeBatch(db);
+                        existingDocs.forEach((doc) => {
+                            deleteBatch.delete(doc.ref);
+                        });
+                        await deleteBatch.commit();
+                        console.log("تم مسح البيانات القديمة من Firestore.");
+
+                        // Prepare new data for upload and update local map
+                        // إعداد البيانات الجديدة للرفع وتحديث الخريطة المحلية
+                        productData.clear();
+                        const writeBatchNew = writeBatch(db);
+                        let productsCount = 0;
+
+                        for (const row of jsonProducts) {
+                            const productId = String(row.product_id).trim(); // Convert to string and trim
+                            const productName = row.product_name; // Get product_name
+                            const price = row.price;
+                            const imageUrl = row.image_url;
+
+                            if (productId && price !== undefined && imageUrl) {
+                                // Add to Firestore batch
+                                const productDocRef = doc(productsRef, productId); // Use product_id as document ID
+                                writeBatchNew.set(productDocRef, {
+                                    product_id: productId,
+                                    product_name: productName || null, // Store product_name, allow null
+                                    price: price,
+                                    image_url: imageUrl
+                                });
+                                productData.set(productId, {
+                                    product_name: productName || null, // Update local map with product_name
+                                    price: price,
+                                    image_url: imageUrl
+                                });
+                                productsCount++;
+                            } else {
+                                console.warn(`تخطى صف غير صالح:`, row);
+                            }
+                        }
+
+                        // Commit the batch write to Firestore
+                        await writeBatchNew.commit();
+
+                        showMessage(uploadStatus, `تم رفع الملف بنجاح! تم تحميل ${productsCount} منتجًا إلى Firestore.`, 'success');
+                        excelFileInput.value = ''; // Clear file input
+                    } catch (error) {
+                        console.error('خطأ في قراءة أو تحليل ملف Excel أو الرفع إلى Firestore:', error);
+                        showMessage(uploadStatus, `حدث خطأ أثناء معالجة الملف: ${error.message}`, 'error');
+                    }
+                };
+
+                reader.onerror = (error) => {
+                    console.error('خطأ في قراءة الملف:', error);
+                    showMessage(uploadStatus, `حدث خطأ في قراءة الملف: ${error.message}`, 'error');
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        });
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=ismailnuman/nzam" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
