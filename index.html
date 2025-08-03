@@ -39,33 +39,19 @@
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
 
     <!-- Main Container -->
-    <div class="bg-white shadow-2xl rounded-3xl p-4 sm:p-6 md:p-8 lg:p-12 w-full max-w-5xl flex flex-col gap-6 md:gap-10 border border-blue-100">
+    <div class="bg-white shadow-2xl rounded-3xl p-4 sm:p-6 md:p-8 lg:p-12 w-full max-w-5xl flex flex-col gap-6 md:gap-10 border border-blue-200">
 
-        <!-- Header with Logo and Admin Login Button -->
-        <header class="flex flex-col items-center md:flex-row md:justify-between mb-4 md:mb-6 gap-4 md:gap-6">
-            <div class="flex items-center gap-3 md:gap-4">
-                <!-- Logo -->
-                <img src="https://up6.cc/2025/08/175425156080341.png" alt="شعار الشركة" class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full shadow-lg border-2 border-yellow-400 object-cover">
-                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-800 drop-shadow-md">نظام إدارة المنتجات مقاول بلس</h1>
-            </div>
-            <!-- Admin Login Button (initially visible) -->
-            <button id="showAdminLoginButton"
-                    class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-xl whitespace-nowrap">
-                تسجيل دخول الأدمن
-            </button>
-        </header>
-
-        <!-- Elegant Banner -->
-        <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl text-center mb-4 md:mb-8">
-            <p class="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 drop-shadow-lg">مرحباً بك في نظام إدارة المنتجات!</p>
-            <p class="text-lg sm:text-xl md:text-2xl font-light opacity-90">ابحث عن منتجاتك أو قم بإدارة المخزون بكل سهولة.</p>
+        <!-- Image Banner (now the main header content) -->
+        <div class="w-full mb-4 md:mb-8 rounded-2xl overflow-hidden shadow-xl">
+            <img src="https://k.top4top.io/p_3502ufy2f1.png" alt="بنر ترحيبي" class="w-full h-auto object-cover"
+                 onerror="this.onerror=null;this.src='https://placehold.co/1200x300/a0c4ff/ffffff?text=خطأ+في+تحميل+البنر';">
         </div>
 
         <!-- User Interface Section -->
-        <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-8 rounded-2xl shadow-lg border border-blue-200">
+        <div class class="bg-gradient-to-br from-blue-100 to-indigo-200 p-8 rounded-2xl shadow-lg border border-blue-200">
             <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">البحث عن المنتجات</h2>
             <div class="flex flex-col md:flex-row items-center gap-3 sm:gap-4 md:gap-5 mb-4 md:mb-8">
-                <input type="text" id="productIdInput" placeholder="أدخل رقم المنتج للبحث..."
+                <input type="number" id="productIdInput" placeholder="أدخل رقم المنتج للبحث..."
                        class="flex-grow p-3 sm:p-4 border border-blue-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-400 focus:border-transparent text-lg sm:text-xl text-right placeholder-gray-500 transition duration-300 ease-in-out">
                 <button id="searchButton"
                         class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-lg sm:text-xl w-full md:w-auto">
@@ -75,7 +61,7 @@
 
             <!-- Product Display Area -->
             <div id="productDetails" class="bg-white p-4 sm:p-6 rounded-xl shadow-inner border border-gray-200 min-h-[150px] sm:min-h-[200px] flex flex-col items-center justify-center text-gray-700 text-center transition-all duration-300 ease-in-out">
-                <p class="text-lg sm:text-xl md:text-2xl font-medium text-gray-600">ابدأ بالبحث عن منتجك المفضل!</p>
+                <p class="text-lg sm:text-xl md:text-2xl font-medium text-blue-600">ابدأ بالبحث عن منتجك المفضل!</p>
             </div>
         </div>
 
@@ -107,7 +93,20 @@
             <p id="uploadStatus" class="text-center text-base mt-4 font-semibold"></p>
         </div>
 
+        <!-- Admin Login Button (moved to bottom) -->
+        <div class="flex justify-center mt-8">
+            <button id="showAdminLoginButtonBottom"
+                    class="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-300 font-bold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 text-xl whitespace-nowrap">
+                تسجيل دخول الأدمن
+            </button>
+        </div>
+
     </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-5xl text-center text-gray-600 text-sm mt-8 p-4">
+        <p>جميع الحقوق محفوظة لشركة ادفانسيد تيك سيستم 2025</p>
+    </footer>
 
     <!-- Firebase SDKs (Updated to v12.0.0) -->
     <!-- Moved script to end of body to ensure DOM elements are loaded -->
@@ -189,7 +188,7 @@
         let excelFileInput;
         let uploadButton;
         let uploadStatus;
-        let showAdminLoginButton; // New element for showing admin login
+        let showAdminLoginButtonBottom; // Renamed to reflect new position
 
         // Function to display messages in a styled way (instead of alert)
         // دالة لعرض الرسائل بطريقة منسقة (بدلاً من استخدام alert)
@@ -198,7 +197,7 @@
             element.textContent = message;
             element.className = 'text-center text-base mt-4 font-semibold'; // Reset classes for new design
             if (type === 'error') {
-                element.classList.add('text-red-600');
+                element.classList.add('text-red-500'); // Changed to red-500 for consistency
             } else if (type === 'success') {
                 element.classList.add('text-green-600');
             } else if (type === 'loading') {
@@ -261,12 +260,12 @@
             excelFileInput = document.getElementById('excelFileInput');
             uploadButton = document.getElementById('uploadButton');
             uploadStatus = document.getElementById('uploadStatus');
-            showAdminLoginButton = document.getElementById('showAdminLoginButton'); // Get the new button
+            showAdminLoginButtonBottom = document.getElementById('showAdminLoginButtonBottom'); // Get the new button
 
             // --- Event Listener for showing Admin Login ---
-            showAdminLoginButton.addEventListener('click', () => {
+            showAdminLoginButtonBottom.addEventListener('click', () => {
                 adminLoginSection.classList.remove('hidden'); // Show the admin login section
-                showAdminLoginButton.classList.add('hidden'); // Hide the "تسجيل دخول الأدمن" button
+                showAdminLoginButtonBottom.classList.add('hidden'); // Hide the "تسجيل دخول الأدمن" button
             });
 
 
@@ -276,7 +275,7 @@
             searchButton.addEventListener('click', () => {
                 const productId = productIdInput.value.trim();
                 if (!productId) {
-                    productDetails.innerHTML = `<p class="text-red-600 text-2xl font-medium">الرجاء إدخال رقم المنتج للبحث.</p>`;
+                    productDetails.innerHTML = `<p class="text-red-500 text-2xl font-medium">الرجاء إدخال رقم المنتج للبحث.</p>`;
                     return;
                 }
 
@@ -290,7 +289,7 @@
                              onerror="this.onerror=null;this.src='https://placehold.co/250x200/e0e0e0/000000?text=لا+توجد+صورة';">
                     `;
                 } else {
-                    productDetails.innerHTML = `<p class="text-red-600 text-2xl font-medium">المنتج رقم "${productId}" غير موجود.</p>`;
+                    productDetails.innerHTML = `<p class="text-red-500 text-2xl font-medium">المنتج رقم "${productId}" غير موجود.</p>`;
                 }
             });
 
