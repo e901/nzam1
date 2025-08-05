@@ -6,97 +6,104 @@
     <title>تطبيق إدارة المنتجات</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Almarai and Lateef -->
-    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Lateef&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Noto Sans Arabic and Lateef -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Lateef&display=swap" rel="stylesheet">
     <!-- SheetJS CDN for reading Excel files -->
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <style>
         body {
-            font-family: 'Almarai', sans-serif; /* Primary font */
-            background-color: #e0f2f7; /* Light Cyan */
+            font-family: 'Noto Sans Arabic', sans-serif; /* Primary font */
+            background-color: #1a202c; /* Dark Gray - Tailwind gray-900 */
+            color: #e2e8f0; /* Light Gray - Tailwind gray-200 */
             direction: rtl; /* Ensure RTL direction for the entire body */
         }
         h1, h2, button {
-            font-family: 'Lateef', 'Almarai', sans-serif; /* Decorative font for headings and buttons */
+            font-family: 'Lateef', 'Noto Sans Arabic', sans-serif; /* Decorative font for headings and buttons */
         }
-        /* Custom scrollbar for better aesthetics */
+        /* Custom scrollbar for better aesthetics in dark mode */
         ::-webkit-scrollbar {
             width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #f0f8ff; /* AliceBlue */
+            background: #2d3748; /* Darker Gray - Tailwind gray-700 */
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb {
-            background: #81d4fa; /* Light Blue 300 */
+            background: #4a5568; /* Gray - Tailwind gray-600 */
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #4fc3f7; /* Light Blue 400 */
+            background: #718096; /* Lighter Gray - Tailwind gray-500 */
         }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
 
     <!-- Main Container -->
-    <div class="bg-white shadow-2xl rounded-3xl p-4 sm:p-6 md:p-8 lg:p-12 w-full max-w-5xl flex flex-col gap-6 md:gap-10 border border-blue-200">
+    <div class="bg-gray-800 shadow-2xl rounded-3xl p-4 sm:p-6 md:p-8 lg:p-12 w-full max-w-5xl flex flex-col gap-6 md:gap-10 border border-gray-700">
 
         <!-- Image Banner (now the main header content) -->
         <div class="w-full mb-4 md:mb-8 rounded-2xl overflow-hidden shadow-xl">
             <img src="https://k.top4top.io/p_3502ufy2f1.png" alt="بنر ترحيبي" class="w-full h-auto object-cover"
-                 onerror="this.onerror=null;this.src='https://placehold.co/1200x300/a0c4ff/ffffff?text=خطأ+في+تحميل+البنر';">
+                 onerror="this.onerror=null;this.src='https://placehold.co/1200x300/2d3748/e2e8f0?text=خطأ+في+تحميل+البنر';">
         </div>
 
         <!-- User Interface Section -->
-        <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-8 rounded-2xl shadow-lg border border-blue-200">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">البحث عن المنتجات</h2>
+        <div class="bg-gray-700 p-8 rounded-2xl shadow-lg border border-gray-600">
+            <h2 class="text-3xl font-bold text-gray-100 mb-6 text-center">البحث عن المنتجات</h2>
             <div class="flex flex-col md:flex-row items-center gap-3 sm:gap-4 md:gap-5 mb-4 md:mb-8">
                 <input type="number" id="productIdInput" placeholder="أدخل رقم المنتج للبحث..."
-                       class="flex-grow p-3 sm:p-4 border border-blue-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-400 focus:border-transparent text-lg sm:text-xl text-right placeholder-gray-500 transition duration-300 ease-in-out">
+                       class="flex-grow p-3 sm:p-4 border border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500 focus:border-transparent text-lg sm:text-xl text-right placeholder-gray-400 bg-gray-900 text-gray-100 transition duration-300 ease-in-out">
                 <button id="searchButton"
                         class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-lg sm:text-xl w-full md:w-auto">
-                    بحث المنتج
-                </button>
+                    بحث المنتج</button>
             </div>
 
             <!-- Product Display Area -->
-            <div id="productDetails" class="bg-white p-4 sm:p-6 rounded-xl shadow-inner border border-gray-200 min-h-[150px] sm:min-h-[200px] flex flex-col items-center justify-center text-gray-700 text-center transition-all duration-300 ease-in-out">
-                <p class="text-lg sm:text-xl md:text-2xl font-medium text-blue-600">ابدأ بالبحث عن منتجك المفضل!</p>
+            <div id="productDetails" class="bg-gray-900 p-4 sm:p-6 rounded-xl shadow-inner border border-gray-700 min-h-[150px] sm:min-h-[200px] flex flex-col items-center justify-center text-gray-100 text-center transition-all duration-300 ease-in-out">
+                <p class="text-lg sm:text-xl md:text-2xl font-medium text-gray-300">ابدأ بالبحث عن منتجك المفضل!</p>
             </div>
         </div>
 
         <!-- Admin Login Section (initially hidden, shown when showAdminLoginButton is clicked) -->
-        <div id="adminLoginSection" class="bg-gradient-to-br from-green-100 to-emerald-200 p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg border border-green-200 hidden">
-            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">تسجيل دخول الأدمن</h2>
+        <div id="adminLoginSection" class="bg-gray-700 p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg border border-gray-600 hidden">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-100 mb-4 md:mb-6 text-center">تسجيل دخول الأدمن</h2>
             <div class="flex flex-col md:flex-row items-center gap-3 sm:gap-4 md:gap-5 mb-4 md:mb-6">
                 <input type="password" id="adminPasswordInput" placeholder="أدخل كلمة سر الأدمن"
-                       class="flex-grow p-3 sm:p-4 border border-green-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-400 focus:border-transparent text-lg sm:text-xl text-right placeholder-gray-500 transition duration-300 ease-in-out">
+                       class="flex-grow p-3 sm:p-4 border border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500 focus:border-transparent text-lg sm:text-xl text-right placeholder-gray-400 bg-gray-900 text-gray-100 transition duration-300 ease-in-out">
                 <button id="adminLoginButton"
                         class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-lg sm:text-xl w-full md:w-auto">
-                    دخول
-                </button>
+                    دخول</button>
             </div>
-            <p id="adminLoginMessage" class="text-red-600 text-center text-base mt-4 font-semibold"></p>
+            <p id="adminLoginMessage" class="text-red-500 text-center text-base mt-4 font-semibold"></p>
         </div>
 
         <!-- Admin Upload Section (Hidden by default) -->
-        <div id="adminUploadSection" class="bg-gradient-to-br from-green-100 to-emerald-200 p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg border border-green-200 hidden">
-            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">رفع ملف بيانات المنتجات (Excel)</h2>
+        <div id="adminUploadSection" class="bg-gray-700 p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg border border-gray-600 hidden">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-100 mb-4 md:mb-6 text-center">رفع ملف بيانات المنتجات (Excel)</h2>
             <div class="flex flex-col md:flex-row items-center gap-3 sm:gap-4 md:gap-5 mb-4 md:mb-6">
                 <input type="file" id="excelFileInput" accept=".xlsx"
-                       class="flex-grow p-3 sm:p-4 border border-green-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-400 file:mr-3 sm:file:mr-5 file:py-2 sm:file:py-3 file:px-4 sm:file:px-6 file:rounded-lg file:border-0 file:text-base sm:file:text-lg file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer transition duration-300 ease-in-out">
+                       class="flex-grow p-3 sm:p-4 border border-gray-600 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500 file:mr-3 sm:file:mr-5 file:py-2 sm:file:py-3 file:px-4 sm:file:px-6 file:rounded-lg file:border-0 file:text-base sm:file:text-lg file:font-semibold file:bg-green-500 file:text-white hover:file:bg-green-600 cursor-pointer transition duration-300 ease-in-out">
                 <button id="uploadButton"
                         class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-lg sm:text-xl w-full md:w-auto">
-                    رفع الملف الآن
-                </button>
+                    رفع الملف الآن</button>
             </div>
             <p id="uploadStatus" class="text-center text-base mt-4 font-semibold"></p>
+
+            <!-- Uploaded Products List -->
+            <div id="uploadedProductsList" class="bg-gray-900 p-4 rounded-xl shadow-inner border border-gray-700 mt-6 max-h-60 overflow-y-auto">
+                <h3 class="text-xl font-bold text-gray-200 mb-3 text-center">المنتجات المرفوعة حالياً</h3>
+                <ul class="list-disc list-inside text-gray-300 text-lg" id="productsListUl">
+                    <!-- Product IDs will be inserted here -->
+                    <li class="text-center text-gray-400">لا توجد منتجات مرفوعة بعد.</li>
+                </ul>
+            </div>
         </div>
 
         <!-- Admin Login Button (moved to bottom) -->
         <div class="flex justify-center mt-8">
             <button id="showAdminLoginButtonBottom"
-                    class="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-300 font-bold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 text-xl whitespace-nowrap">
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 text-xl whitespace-nowrap">
                 تسجيل دخول الأدمن
             </button>
         </div>
@@ -104,7 +111,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="w-full max-w-5xl text-center text-gray-600 text-sm mt-8 p-4">
+    <footer class="w-full max-w-5xl text-center text-gray-400 text-sm mt-8 p-4">
         <p>جميع الحقوق محفوظة لشركة ادفانسيد تيك سيستم 2025</p>
     </footer>
 
@@ -167,8 +174,8 @@
             loadProductsFromFirestore();
         });
 
-        // Global Map to store product data (product_id -> {product_name, price, image_url})
-        // خريطة عالمية لتخزين بيانات المنتجات (رقم المنتج -> {اسم المنتج، السعر، رابط الصورة})
+        // Global Map to store product data (product_id -> {product_name, product_description, price, image_url})
+        // خريطة عالمية لتخزين بيانات المنتجات (رقم المنتج -> {اسم المنتج، وصف المنتج، السعر، رابط الصورة})
         // هذه الخريطة ستُملأ من Firestore عند التحميل الأولي ومن رفع الأدمن
         let productData = new Map();
 
@@ -188,23 +195,24 @@
         let excelFileInput;
         let uploadButton;
         let uploadStatus;
-        let showAdminLoginButtonBottom; // Renamed to reflect new position
+        let showAdminLoginButtonBottom;
+        let productsListUl; // New element for uploaded products list
 
         // Function to display messages in a styled way (instead of alert)
         // دالة لعرض الرسائل بطريقة منسقة (بدلاً من استخدام alert)
         function showMessage(element, message, type = 'info') {
-            if (!element) return; // Ensure element exists before trying to update
+            if (!element) return;
             element.textContent = message;
             element.className = 'text-center text-base mt-4 font-semibold'; // Reset classes for new design
             if (type === 'error') {
-                element.classList.add('text-red-500'); // Changed to red-500 for consistency
+                element.classList.add('text-red-500');
             } else if (type === 'success') {
                 element.classList.add('text-green-600');
             } else if (type === 'loading') {
-                element.classList.add('text-blue-600');
+                element.classList.add('text-blue-500');
             }
             else {
-                element.classList.add('text-gray-600');
+                element.classList.add('text-gray-400');
             }
         }
 
@@ -230,18 +238,38 @@
                 productData.clear(); // Clear local data before loading from Firestore
                 querySnapshot.forEach((doc) => {
                     const product = doc.data();
-                    // Store product_name along with price and image_url
+                    // Store product_name and product_description along with price and image_url
                     productData.set(product.product_id, {
-                        product_name: product.product_name, // Added product_name
+                        product_name: product.product_name,
+                        product_description: product.product_description,
                         price: product.price,
                         image_url: product.image_url
                     });
                 });
-                showMessage(productDetails, 'الرجاء إدخال رقم المنتج والضغط على "بحث".', 'info');
+                showMessage(productDetails, 'ابدأ بالبحث عن منتجك المفضل!', 'info');
                 console.log(`تم تحميل ${productData.size} منتجًا من Firestore.`);
+                displayUploadedProductsInAdminUI(); // Update admin list after loading
             } catch (error) {
                 console.error("خطأ في تحميل المنتجات من Firestore:", error);
                 showMessage(productDetails, `حدث خطأ في تحميل المنتجات: ${error.message}`, 'error');
+            }
+        }
+
+        // Function to display uploaded product IDs in the admin UI
+        // دالة لعرض أرقام المنتجات المرفوعة في واجهة الأدمن
+        function displayUploadedProductsInAdminUI() {
+            if (!productsListUl) return; // Ensure the UL element exists
+
+            productsListUl.innerHTML = ''; // Clear existing list
+            if (productData.size === 0) {
+                productsListUl.innerHTML = '<li class="text-center text-gray-400">لا توجد منتجات مرفوعة بعد.</li>';
+            } else {
+                productData.forEach((product, productId) => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'mb-1 text-gray-300';
+                    listItem.textContent = `رقم المنتج: ${productId} - الاسم: ${product.product_name || 'غير متوفر'}`;
+                    productsListUl.appendChild(listItem);
+                });
             }
         }
 
@@ -260,12 +288,14 @@
             excelFileInput = document.getElementById('excelFileInput');
             uploadButton = document.getElementById('uploadButton');
             uploadStatus = document.getElementById('uploadStatus');
-            showAdminLoginButtonBottom = document.getElementById('showAdminLoginButtonBottom'); // Get the new button
+            showAdminLoginButtonBottom = document.getElementById('showAdminLoginButtonBottom');
+            productsListUl = document.getElementById('productsListUl'); // Get the new UL element
 
             // --- Event Listener for showing Admin Login ---
             showAdminLoginButtonBottom.addEventListener('click', () => {
                 adminLoginSection.classList.remove('hidden'); // Show the admin login section
                 showAdminLoginButtonBottom.classList.add('hidden'); // Hide the "تسجيل دخول الأدمن" button
+                displayUploadedProductsInAdminUI(); // Display products when admin section is shown
             });
 
 
@@ -283,10 +313,11 @@
 
                 if (product) {
                     productDetails.innerHTML = `
-                        <p class="text-3xl font-bold text-gray-800 mb-3">اسم المنتج: <span class="text-blue-700">${product.product_name || 'غير متوفر'}</span></p>
-                        <p class="text-3xl font-bold text-gray-800 mb-3">السعر: <span class="text-blue-700">${product.price}</span></p>
-                        <img src="${product.image_url}" alt="صورة المنتج ${productId}" class="max-w-xs max-h-56 rounded-xl shadow-md mt-6 border border-gray-300 object-contain"
-                             onerror="this.onerror=null;this.src='https://placehold.co/250x200/e0e0e0/000000?text=لا+توجد+صورة';">
+                        <p class="text-3xl font-bold text-gray-100 mb-3">اسم المنتج: <span class="text-blue-400">${product.product_name || 'غير متوفر'}</span></p>
+                        <p class="text-xl font-medium text-gray-200 mb-4">الوصف: <span class="text-gray-300">${product.product_description || 'غير متوفر'}</span></p>
+                        <p class="text-3xl font-bold text-gray-100 mb-3">السعر: <span class="text-blue-400">${product.price}</span></p>
+                        <img src="${product.image_url}" alt="صورة المنتج ${productId}" class="max-w-xs max-h-56 rounded-xl shadow-md mt-6 border border-gray-600 object-contain"
+                             onerror="this.onerror=null;this.src='https://placehold.co/250x200/2d3748/e2e8f0?text=لا+توجد+صورة';">
                     `;
                 } else {
                     productDetails.innerHTML = `<p class="text-red-500 text-2xl font-medium">المنتج رقم "${productId}" غير موجود.</p>`;
@@ -310,6 +341,7 @@
                     adminLoginSection.classList.add('hidden');
                     adminUploadSection.classList.remove('hidden');
                     showMessage(adminLoginMessage, 'تم تسجيل الدخول بنجاح! يمكنك الآن رفع ملف Excel.', 'success');
+                    displayUploadedProductsInAdminUI(); // Update list after successful login
                 } else {
                     showMessage(adminLoginMessage, 'كلمة السر غير صحيحة. حاول مرة أخرى.', 'error');
                     adminPasswordInput.value = ''; // Clear password field
@@ -374,6 +406,7 @@
                         for (const row of jsonProducts) {
                             const productId = String(row.product_id).trim(); // Convert to string and trim
                             const productName = row.product_name; // Get product_name
+                            const productDescription = row.product_description; // Get product_description
                             const price = row.price;
                             const imageUrl = row.image_url;
 
@@ -382,12 +415,14 @@
                                 const productDocRef = doc(productsRef, productId); // Use product_id as document ID
                                 writeBatchNew.set(productDocRef, {
                                     product_id: productId,
-                                    product_name: productName || null, // Store product_name, allow null
+                                    product_name: productName || null,
+                                    product_description: productDescription || null,
                                     price: price,
                                     image_url: imageUrl
                                 });
                                 productData.set(productId, {
-                                    product_name: productName || null, // Update local map with product_name
+                                    product_name: productName || null,
+                                    product_description: productDescription || null,
                                     price: price,
                                     image_url: imageUrl
                                 });
@@ -402,6 +437,7 @@
 
                         showMessage(uploadStatus, `تم رفع الملف بنجاح! تم تحميل ${productsCount} منتجًا إلى Firestore.`, 'success');
                         excelFileInput.value = ''; // Clear file input
+                        displayUploadedProductsInAdminUI(); // Update list after successful upload
                     } catch (error) {
                         console.error('خطأ في قراءة أو تحليل ملف Excel أو الرفع إلى Firestore:', error);
                         showMessage(uploadStatus, `حدث خطأ أثناء معالجة الملف: ${error.message}`, 'error');
