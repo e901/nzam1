@@ -93,11 +93,61 @@
             <p id="uploadStatus" class="text-center text-base mt-4 font-semibold"></p>
         </div>
 
+        <!-- Manual Product Addition & Edit Section (Hidden by default) -->
+        <div id="manualAddSection" class="bg-gradient-to-br from-purple-100 to-pink-200 p-4 sm:p-6 md:p-8 rounded-2xl shadow-lg border border-purple-200 hidden">
+            <h2 id="manualAddTitle" class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">إضافة منتج يدويًا</h2>
+
+            <!-- Search to Edit Section -->
+            <div id="editSearchContainer" class="flex flex-col gap-4 mb-6">
+                <div class="flex flex-col md:flex-row items-center gap-3">
+                    <input type="number" id="editProductIdInput" placeholder="أدخل رقم المنتج للتعديل..."
+                           class="flex-grow p-3 sm:p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-400 text-lg sm:text-xl text-right">
+                    <button id="editSearchButton"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 text-lg sm:text-xl w-full md:w-auto">
+                        بحث للتعديل
+                    </button>
+                </div>
+                <hr class="border-gray-300">
+            </div>
+
+            <div class="flex flex-col gap-4">
+                <input type="number" id="manualProductId" placeholder="رقم المنتج"
+                       class="p-3 sm:p-4 border border-purple-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-400 text-lg sm:text-xl text-right">
+                <input type="text" id="manualProductName" placeholder="اسم المنتج"
+                       class="p-3 sm:p-4 border border-purple-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-400 text-lg sm:text-xl text-right">
+                <input type="text" id="manualProductCategory" placeholder="صنف المنتج (اختياري)"
+                       class="p-3 sm:p-4 border border-purple-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-400 text-lg sm:text-xl text-right">
+                <input type="url" id="manualImageUrl" placeholder="رابط صورة المنتج (اختياري)"
+                       class="p-3 sm:p-4 border border-purple-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-400 text-lg sm:text-xl text-right">
+                
+                <div id="sizesContainer" class="flex flex-col gap-3 p-4 border border-purple-300 rounded-xl bg-purple-50">
+                    <div class="flex justify-between items-center mb-2">
+                         <h3 class="text-xl font-bold text-gray-700">الأحجام والأسعار</h3>
+                         <button id="addSizeButton" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 text-lg">
+                            + إضافة حجم
+                        </button>
+                    </div>
+                    <!-- Dynamic size/price inputs will be added here -->
+                </div>
+
+                <button id="saveManualProductButton"
+                        class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-lg sm:text-xl w-full mt-4">
+                    حفظ المنتج
+                </button>
+            </div>
+            <p id="manualStatus" class="text-center text-base mt-4 font-semibold"></p>
+        </div>
+
+
         <!-- Admin Login Button (moved to bottom) -->
-        <div class="flex justify-center mt-8">
-            <button id="showAdminLoginButtonBottom"
+        <div class="flex flex-col md:flex-row justify-center mt-8 gap-4">
+             <button id="showAdminLoginButtonBottom"
                     class="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-300 font-bold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 text-xl whitespace-nowrap">
                 تسجيل دخول الأدمن
+            </button>
+            <button id="showManualAddButton"
+                    class="bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-300 font-bold py-3 px-6 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 text-xl whitespace-nowrap hidden">
+                إضافة منتج يدويًا
             </button>
         </div>
 
@@ -167,8 +217,7 @@
             loadProductsFromFirestore();
         });
 
-        // Global Map to store product data (product_id -> {product_name, price, image_url, sizes})
-        // خريطة عالمية لتخزين بيانات المنتجات (رقم المنتج -> {اسم المنتج، السعر، رابط الصورة، الأحجام})
+        // Global Map to store product data (product_id -> {product_name, price, image_url, sizes, product_category})
         let productData = new Map();
 
         // Admin password (for demonstration purposes, this is client-side and not secure for production)
@@ -187,6 +236,18 @@
         let uploadButton;
         let uploadStatus;
         let showAdminLoginButtonBottom;
+        let manualAddSection;
+        let showManualAddButton;
+        let manualProductId;
+        let manualProductName;
+        let manualProductCategory;
+        let manualImageUrl;
+        let sizesContainer;
+        let addSizeButton;
+        let saveManualProductButton;
+        let manualStatus;
+        let editProductIdInput;
+        let editSearchButton;
 
         // Function to display messages in a styled way (instead of alert)
         function showMessage(element, message, type = 'info') {
@@ -234,9 +295,10 @@
 
                     productData.set(product.product_id, {
                         product_name: product.product_name,
+                        product_category: product.product_category || null,
                         price: product.price,
                         image_url: product.image_url,
-                        sizes: sizes // Store the parsed sizes object
+                        sizes: sizes
                     });
                 });
                 showMessage(productDetails, 'الرجاء إدخال رقم المنتج والضغط على "بحث".', 'info');
@@ -261,12 +323,35 @@
             uploadButton = document.getElementById('uploadButton');
             uploadStatus = document.getElementById('uploadStatus');
             showAdminLoginButtonBottom = document.getElementById('showAdminLoginButtonBottom');
+            manualAddSection = document.getElementById('manualAddSection');
+            showManualAddButton = document.getElementById('showManualAddButton');
+            manualProductId = document.getElementById('manualProductId');
+            manualProductName = document.getElementById('manualProductName');
+            manualProductCategory = document.getElementById('manualProductCategory');
+            manualImageUrl = document.getElementById('manualImageUrl');
+            sizesContainer = document.getElementById('sizesContainer');
+            addSizeButton = document.getElementById('addSizeButton');
+            saveManualProductButton = document.getElementById('saveManualProductButton');
+            manualStatus = document.getElementById('manualStatus');
+            editProductIdInput = document.getElementById('editProductIdInput');
+            editSearchButton = document.getElementById('editSearchButton');
+
 
             // --- Event Listener for showing Admin Login ---
             showAdminLoginButtonBottom.addEventListener('click', () => {
                 adminLoginSection.classList.remove('hidden');
                 showAdminLoginButtonBottom.classList.add('hidden');
+                showManualAddButton.classList.add('hidden'); // Hide manual add button on login
             });
+
+            // --- Event Listener for showing Manual Add Section ---
+            showManualAddButton.addEventListener('click', () => {
+                manualAddSection.classList.remove('hidden');
+                adminUploadSection.classList.add('hidden');
+                showManualAddButton.classList.add('hidden');
+                showAdminLoginButtonBottom.classList.remove('hidden');
+            });
+
 
             // --- User Interface Logic ---
             function renderProductDetails(product, selectedSize = null) {
@@ -294,10 +379,14 @@
                     `;
                 }
 
+                const imageUrl = product.image_url || 'https://placehold.co/250x200/e0e0e0/000000?text=لا+توجد+صورة';
+                const categoryHtml = product.product_category ? `<p class="text-2xl font-bold text-gray-800 mb-3">الصنف: <span class="text-blue-700">${product.product_category}</span></p>` : '';
+                
                 productDetails.innerHTML = `
                     <p class="text-3xl font-bold text-gray-800 mb-3">اسم المنتج: <span class="text-blue-700">${product.product_name || 'غير متوفر'}</span></p>
+                    ${categoryHtml}
                     ${priceHtml}
-                    <img src="${product.image_url}" alt="صورة المنتج ${product.product_id}" class="max-w-xs max-h-56 rounded-xl shadow-md mt-6 border border-gray-300 object-contain"
+                    <img src="${imageUrl}" alt="صورة المنتج ${product.product_id}" class="max-w-xs max-h-56 rounded-xl shadow-md mt-6 border border-gray-300 object-contain"
                          onerror="this.onerror=null;this.src='https://placehold.co/250x200/e0e0e0/000000?text=لا+توجد+صورة';">
                 `;
 
@@ -341,7 +430,8 @@
                 if (password === ADMIN_PASSWORD) {
                     adminLoginSection.classList.add('hidden');
                     adminUploadSection.classList.remove('hidden');
-                    showMessage(adminLoginMessage, 'تم تسجيل الدخول بنجاح! يمكنك الآن رفع ملف Excel.', 'success');
+                    showManualAddButton.classList.remove('hidden'); // Show manual add button after login
+                    showMessage(adminLoginMessage, 'تم تسجيل الدخول بنجاح! يمكنك الآن رفع ملف Excel أو إضافة منتج يدويًا.', 'success');
                 } else {
                     showMessage(adminLoginMessage, 'كلمة السر غير صحيحة. حاول مرة أخرى.', 'error');
                     adminPasswordInput.value = '';
@@ -396,16 +486,20 @@
                         for (const row of jsonProducts) {
                             const productId = String(row.product_id).trim();
                             const productName = row.product_name;
+                            const productCategory = row.product_category;
                             const price = row.price;
-                            const sizesJson = row.sizes_json; // Get sizes_json
+                            const sizesJson = row.sizes_json;
                             const imageUrl = row.image_url;
 
-                            if (productId && (price !== undefined || sizesJson) && imageUrl) {
+                            if (productId && (price !== undefined || sizesJson)) {
                                 let productDoc = {
                                     product_id: productId,
                                     product_name: productName || null,
-                                    image_url: imageUrl
+                                    product_category: productCategory || null,
                                 };
+                                if (imageUrl) {
+                                    productDoc.image_url = imageUrl;
+                                }
 
                                 if (sizesJson) {
                                     productDoc.sizes_json = sizesJson;
@@ -416,7 +510,6 @@
                                 const productDocRef = doc(productsRef, productId);
                                 writeBatchNew.set(productDocRef, productDoc);
                                 
-                                // Update local map
                                 let sizes = null;
                                 if (sizesJson) {
                                     try {
@@ -427,6 +520,7 @@
                                 }
                                 productData.set(productId, {
                                     product_name: productName || null,
+                                    product_category: productCategory || null,
                                     price: price,
                                     image_url: imageUrl,
                                     sizes: sizes
@@ -454,6 +548,143 @@
 
                 reader.readAsArrayBuffer(file);
             });
+
+            // --- Manual Product Addition/Edit Logic ---
+            function createSizeInputRow(size = '', price = '') {
+                const sizeRow = document.createElement('div');
+                sizeRow.className = 'flex flex-col md:flex-row items-center gap-3';
+                sizeRow.innerHTML = `
+                    <input type="text" placeholder="الحجم (مثال: صغير, 38)" value="${size}" class="size-input p-3 sm:p-4 border border-purple-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-400 text-lg sm:text-xl text-right flex-grow">
+                    <input type="number" placeholder="السعر" value="${price}" class="price-input p-3 sm:p-4 border border-purple-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-400 text-lg sm:text-xl text-right w-32">
+                    <button class="remove-size-button bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300 ease-in-out">حذف</button>
+                `;
+                sizeRow.querySelector('.remove-size-button').addEventListener('click', () => {
+                    sizeRow.remove();
+                });
+                sizesContainer.appendChild(sizeRow);
+            }
+
+            addSizeButton.addEventListener('click', () => createSizeInputRow());
+            
+            // Search to Edit Functionality
+            editSearchButton.addEventListener('click', () => {
+                const productId = editProductIdInput.value.trim();
+                const product = productData.get(productId);
+
+                if (product) {
+                    manualProductId.value = product.product_id;
+                    manualProductName.value = product.product_name;
+                    manualProductCategory.value = product.product_category || '';
+                    manualImageUrl.value = product.image_url || '';
+                    
+                    sizesContainer.innerHTML = ''; // Clear existing size inputs
+
+                    if (product.sizes) {
+                        Object.entries(product.sizes).forEach(([size, price]) => {
+                            createSizeInputRow(size, price);
+                        });
+                    } else if (product.price) {
+                        createSizeInputRow('', product.price);
+                    }
+                    // Always add an empty row for new additions
+                    createSizeInputRow();
+
+                    showMessage(manualStatus, `تم تحميل بيانات المنتج رقم ${productId} للتعديل.`, 'success');
+                } else {
+                    showMessage(manualStatus, `المنتج رقم ${productId} غير موجود.`, 'error');
+                }
+            });
+
+            saveManualProductButton.addEventListener('click', async () => {
+                const productId = manualProductId.value.trim();
+                const productName = manualProductName.value.trim();
+                const productCategory = manualProductCategory.value.trim();
+                const imageUrl = manualImageUrl.value.trim();
+
+                if (!productId || !productName) {
+                    showMessage(manualStatus, 'الرجاء ملء حقول رقم واسم المنتج.', 'error');
+                    return;
+                }
+
+                if (!db || !userId) {
+                    showMessage(manualStatus, 'خطأ: لم يتم تهيئة قاعدة البيانات أو لم يتم تسجيل الدخول.', 'error');
+                    return;
+                }
+
+                const sizes = {};
+                let hasSizes = false;
+                const sizeInputs = sizesContainer.querySelectorAll('.size-input');
+                const priceInputs = sizesContainer.querySelectorAll('.price-input');
+
+                for (let i = 0; i < sizeInputs.length; i++) {
+                    const size = sizeInputs[i].value.trim();
+                    const price = parseFloat(priceInputs[i].value);
+                    if (size && !isNaN(price)) {
+                        sizes[size] = price;
+                        hasSizes = true;
+                    }
+                }
+
+                let productDoc = {
+                    product_id: productId,
+                    product_name: productName || null,
+                    product_category: productCategory || null,
+                };
+
+                if (imageUrl) {
+                    productDoc.image_url = imageUrl;
+                }
+
+                if (hasSizes) {
+                    productDoc.sizes_json = JSON.stringify(sizes);
+                    productDoc.price = null;
+                } else {
+                    const singlePriceInput = sizesContainer.querySelector('.price-input');
+                    const singlePrice = parseFloat(singlePriceInput.value);
+                    if (!isNaN(singlePrice)) {
+                        productDoc.price = singlePrice;
+                        productDoc.sizes_json = null;
+                    } else {
+                        showMessage(manualStatus, 'الرجاء إدخال حجم وسعر واحد على الأقل.', 'error');
+                        return;
+                    }
+                }
+
+                try {
+                    const productDocRef = doc(db, PRODUCTS_COLLECTION_PATH, productId);
+                    await setDoc(productDocRef, productDoc);
+
+                    let parsedSizes = hasSizes ? sizes : null;
+                    productData.set(productId, {
+                        product_name: productName,
+                        product_category: productCategory,
+                        price: productDoc.price,
+                        image_url: imageUrl,
+                        sizes: parsedSizes
+                    });
+
+                    showMessage(manualStatus, `تمت إضافة/تعديل المنتج ${productName} بنجاح!`, 'success');
+                    manualProductId.value = '';
+                    manualProductName.value = '';
+                    manualProductCategory.value = '';
+                    manualImageUrl.value = '';
+                    sizesContainer.innerHTML = `
+                         <div class="flex justify-between items-center mb-2">
+                             <h3 class="text-xl font-bold text-gray-700">الأحجام والأسعار</h3>
+                             <button id="addSizeButton" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 text-lg">
+                                + إضافة حجم
+                            </button>
+                        </div>
+                    `;
+                    document.getElementById('addSizeButton').addEventListener('click', () => createSizeInputRow());
+                    createSizeInputRow();
+                } catch (error) {
+                    console.error("Error adding product manually:", error);
+                    showMessage(manualStatus, `حدث خطأ أثناء إضافة المنتج: ${error.message}`, 'error');
+                }
+            });
+
+            createSizeInputRow();
         });
     </script>
 </body>
