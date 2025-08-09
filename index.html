@@ -577,7 +577,16 @@
                     manualProductCategory.value = product.product_category || '';
                     manualImageUrl.value = product.image_url || '';
                     
-                    sizesContainer.innerHTML = ''; // Clear existing size inputs
+                    sizesContainer.innerHTML = `
+                        <div class="flex justify-between items-center mb-2">
+                             <h3 class="text-xl font-bold text-gray-700">الأحجام والأسعار</h3>
+                             <button id="addSizeButton" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 text-lg">
+                                + إضافة حجم
+                            </button>
+                        </div>
+                    `; // Clear and re-add the button and title
+                    
+                    document.getElementById('addSizeButton').addEventListener('click', () => createSizeInputRow());
 
                     if (product.sizes) {
                         Object.entries(product.sizes).forEach(([size, price]) => {
@@ -586,8 +595,7 @@
                     } else if (product.price) {
                         createSizeInputRow('', product.price);
                     }
-                    // Always add an empty row for new additions
-                    createSizeInputRow();
+                    createSizeInputRow(); // Always add an empty row for new additions
 
                     showMessage(manualStatus, `تم تحميل بيانات المنتج رقم ${productId} للتعديل.`, 'success');
                 } else {
